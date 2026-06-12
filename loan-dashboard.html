@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Officer Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        header {
+            background-color: #1a3a5c;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+
+        .left-panel {
+            flex: 1;
+            min-width: 350px;
+            max-width: 450px;
+        }
+
+        .right-panel {
+            flex: 1;
+            min-width: 350px;
+            max-width: 450px;
+            display: none;
+        }
+
+        .right-panel.active {
+            display: block;
+        }
+
+        .panel h2 {
+            color: #1a3a5c;
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #1a3a5c;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #1a3a5c;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #1a3a5c;
+            box-shadow: 0 0 0 2px rgba(26, 58, 92, 0.1);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+            accent-color: #1a3a5c;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider-container input[type="range"] {
+            flex: 1;
+            margin: 0;
+        }
+
+        .slider-value {
+            min-width: 45px;
+            text-align: center;
+            font-weight: 600;
+            color: #1a3a5c;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #1a3a5c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0f2438;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .decision-badge {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .decision-badge.approved {
+            background-color: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .decision-badge.rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .result-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-size: 18px;
+            color: #1a3a5c;
+            font-weight: 600;
+        }
+
+        .rejection-reason {
+            font-size: 14px;
+            color: #721c24;
+            background-color: #f8d7da;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+
+        .table-container {
+            width: 100%;
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+
+        .table-container h2 {
+            color: #1a3a5c;
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #1a3a5c;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        thead {
+            background-color: #1a3a5c;
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .decision-badge-small {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .decision-badge-small.approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .decision-badge-small.rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+            font-style: italic;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .left-panel,
+            .right-panel {
+                max-width: 100%;
+            }
+        }
+
+        .required::after {
+            content: " *";
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Loan Officer Dashboard</h1>
+    </header>
+
+    <div class="container">
+        <!-- Left Panel: Application Form -->
+        <div class="left-panel panel">
+            <h2>Loan Application</h2>
+            <form id="loanForm">
+                <div class="form-group">
+                    <label for="applicantId" class="required">Applicant ID</label>
+                    <input type="text" id="applicantId" name="applicantId" required placeholder="e.g., APP001">
+                </div>
+
+                <div class="form-group">
+                    <label for="requestedAmount" class="required">Requested Amount (Rs.)</label>
+                    <input type="number" id="requestedAmount" name="requestedAmount" min="10000" max="5000000" required placeholder="10000 - 5000000">
+                </div>
+
+                <div class="form-group">
+                    <label for="creditScore" class="required">Credit Score</label>
+                    <div class="slider-container">
+                        <input type="range" id="creditScore" name="creditScore" min="300" max="900" value="650">
+                        <span class="slider-value" id="creditScoreValue">650</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="annualIncome" class="required">Annual Income (Rs.)</label>
+                    <input type="number" id="annualIncome" name="annualIncome" required placeholder="e.g., 500000">
+                </div>
+
+                <div class="form-group">
+                    <label for="employmentStatus" class="required">Employment Status</label>
+                    <select id="employmentStatus" name="employmentStatus" required>
+                        <option value="">-- Select Status --</option>
+                        <option value="SALARIED">SALARIED</option>
+                        <option value="SELF_EMPLOYED">SELF_EMPLOYED</option>
+                        <option value="UNEMPLOYED">UNEMPLOYED</option>
+                        <option value="RETIRED">RETIRED</option>
+                    </select>
+                </div>
+
+                <button type="submit">Evaluate Application</button>
+            </form>
+        </div>
+
+        <!-- Right Panel: Decision Result -->
+        <div class="right-panel panel" id="resultPanel">
+            <h2>Decision Result</h2>
+            <div id="decisionBadge" class="decision-badge"></div>
+
+            <div class="result-item">
+                <div class="result-label">Interest Rate</div>
+                <div class="result-value" id="interestRate">-</div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">Decision Timestamp</div>
+                <div class="result-value" id="decisionTime">-</div>
+            </div>
+
+            <div id="rejectionReasonContainer"></div>
+        </div>
+    </div>
+
+    <!-- History Table -->
+    <div class="panel table-container" style="max-width: 1400px; margin: 20px auto; padding: 25px;">
+        <h2>Evaluation History</h2>
+        <div id="historyContent">
+            <div class="empty-message">No evaluations yet. Submit an application to see history.</div>
+        </div>
+    </div>
+
+    <script>
+        // History storage
+        let evaluationHistory = JSON.parse(localStorage.getItem('loanEvaluationHistory')) || [];
+
+        // Update credit score display
+        const creditScoreSlider = document.getElementById('creditScore');
+        const creditScoreValue = document.getElementById('creditScoreValue');
+
+        creditScoreSlider.addEventListener('input', (e) => {
+            creditScoreValue.textContent = e.target.value;
+        });
+
+        // Form submission
+        document.getElementById('loanForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const applicantId = document.getElementById('applicantId').value.trim();
+            const requestedAmount = parseFloat(document.getElementById('requestedAmount').value);
+            const creditScore = parseInt(document.getElementById('creditScore').value);
+            const annualIncome = parseFloat(document.getElementById('annualIncome').value);
+            const employmentStatus = document.getElementById('employmentStatus').value;
+
+            // Validation
+            if (!applicantId || !requestedAmount || !creditScore || !annualIncome || !employmentStatus) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            // Decision logic
+            let decision = 'REJECTED';
+            let interestRate = null;
+            let rejectionReason = '';
+
+            if (creditScore < 600) {
+                decision = 'REJECTED';
+                rejectionReason = 'Credit score below minimum threshold (600).';
+            } else if (creditScore >= 600 && creditScore < 750) {
+                decision = 'APPROVED';
+                interestRate = 12;
+            } else if (creditScore >= 750) {
+                decision = 'APPROVED';
+                interestRate = 7.5;
+            }
+
+            // Current timestamp
+            const now = new Date();
+            const timestamp = now.toLocaleString('en-IN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            // Display result
+            displayResult(decision, interestRate, rejectionReason, timestamp);
+
+            // Add to history
+            const evaluation = {
+                applicantId,
+                requestedAmount,
+                creditScore,
+                decision,
+                interestRate,
+                timestamp
+            };
+
+            evaluationHistory.unshift(evaluation);
+            if (evaluationHistory.length > 5) {
+                evaluationHistory.pop();
+            }
+            localStorage.setItem('loanEvaluationHistory', JSON.stringify(evaluationHistory));
+
+            // Update history table
+            updateHistoryTable();
+
+            // Scroll to result
+            document.getElementById('resultPanel').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        function displayResult(decision, interestRate, rejectionReason, timestamp) {
+            const resultPanel = document.getElementById('resultPanel');
+            const decisionBadge = document.getElementById('decisionBadge');
+            const interestRateEl = document.getElementById('interestRate');
+            const decisionTimeEl = document.getElementById('decisionTime');
+            const rejectionReasonContainer = document.getElementById('rejectionReasonContainer');
+
+            // Update badge
+            decisionBadge.textContent = decision;
+            decisionBadge.className = 'decision-badge ' + (decision === 'APPROVED' ? 'approved' : 'rejected');
+
+            // Update interest rate
+            if (decision === 'APPROVED') {
+                interestRateEl.textContent = `${interestRate}% per annum`;
+                rejectionReasonContainer.innerHTML = '';
+            } else {
+                interestRateEl.textContent = 'N/A';
+                rejectionReasonContainer.innerHTML = `<div class="result-item"><div class="rejection-reason">${rejectionReason}</div></div>`;
+            }
+
+            // Update timestamp
+            decisionTimeEl.textContent = timestamp;
+
+            // Show result panel
+            resultPanel.classList.add('active');
+        }
+
+        function updateHistoryTable() {
+            const historyContent = document.getElementById('historyContent');
+
+            if (evaluationHistory.length === 0) {
+                historyContent.innerHTML = '<div class="empty-message">No evaluations yet. Submit an application to see history.</div>';
+                return;
+            }
+
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Applicant ID</th>
+                            <th>Amount (Rs.)</th>
+                            <th>Credit Score</th>
+                            <th>Decision</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            evaluationHistory.forEach((eval) => {
+                const badgeClass = eval.decision === 'APPROVED' ? 'approved' : 'rejected';
+                const badgeText = eval.decision;
+                tableHTML += `
+                    <tr>
+                        <td>${eval.applicantId}</td>
+                        <td>${eval.requestedAmount.toLocaleString('en-IN')}</td>
+                        <td>${eval.creditScore}</td>
+                        <td><span class="decision-badge-small ${badgeClass}">${badgeText}</span></td>
+                        <td>${eval.timestamp}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            historyContent.innerHTML = tableHTML;
+        }
+
+        // Initialize table on page load
+        updateHistoryTable();
+    </script>
+</body>
+</html>
