@@ -92,14 +92,16 @@ jobs:
             fi
           } > failure-context.txt
 
-      - name: Export failure context
-        id: context
+      - name: Upload failure context
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-context
+          path: failure-context.txt
+
+      - name: Remove temporary files before PR
+        shell: bash
         run: |
-          {
-            echo "context<<EOF"
-            cat failure-context.txt
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+          rm -f failure-context.txt mvn-output.log
 
       - name: Create auto-fix PR
         uses: peter-evans/create-pull-request@v5
@@ -112,11 +114,11 @@ jobs:
             
             This PR was automatically created because the CI build failed.
             
-            ### Failure Context
-            ```
-            ${{ steps.context.outputs.context }}
-            ```
-            Please review the changes and test results above.
+            - Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - Failure context artifact: `failure-context`
+            - Test reports artifact: `test-reports`
+            
+            Please review the artifacts and test results.
           branch: copilot/auto-fix-${{ github.run_id }}
           delete-branch: true
           draft: true
