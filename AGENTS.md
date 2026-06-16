@@ -1,19 +1,50 @@
-# AGENTS.md — loan-approval-service
+# AGENTS.md — loan-approval-java (root)
 
-## Service Overview
-This is a retail banking loan approval microservice for Zenith Bank's personal lending platform.
-It evaluates loan applications from individual customers based on credit score, annual income,
-and employment status. It returns an approval/rejection decision with an applicable interest rate.
-This service is consumed by the mobile banking app and the branch portal.
+## Repository
+This is a single-service repository: a Spring Boot loan approval API.
+This file contains repository-wide defaults.
 
-## Technology Stack
-- Java 21 (use records for DTOs, pattern matching where it improves clarity)
-- Spring Boot 3.2.x — never use deprecated APIs from Spring 5 or Spring Boot 2.x
-- Maven — never suggest Gradle alternatives
-- H2 in-memory database for dev/test; PostgreSQL in production
+### AGENTS.md Hierarchy
+When working with any file:
+- Identify all AGENTS.md files that apply to that file.
+- Apply instructions from the repository root AGENTS.md first.
+- Apply instructions from nested AGENTS.md files next.
+- If instructions conflict, the MOST SPECIFIC (nearest) AGENTS.md takes precedence.
+- A nested AGENTS.md may override, replace, or narrow rules from parent AGENTS.md files.
 
-## How to Build
-```bash
-mvn clean compile          # compile only
-mvn clean test             # compile + unit tests
-mvn clean verify           # full build
+When answering questions about a specific file, ALWAYS resolve instructions
+using the nearest applicable AGENTS.md.
+
+## Universal Rules
+- NEVER commit secrets, API keys, or credentials
+- NEVER log PII: applicant names, PAN numbers, mobile numbers, full credit scores
+  (credit score BANDS like "600-749" are fine in logs; exact scores are not)
+- Log business events at INFO level.
+- Git commits follow Conventional Commits: feat:, fix:, chore:, docs:, refactor:
+
+## Build Commands
+mvn clean compile
+mvn clean test
+mvn clean verify
+
+## Architecture Rules
+- Controller: REST only, zero business logic
+- Service: all business rules, stateless
+- Strategy pattern for loan decision logic (see com.bank.loans.service.strategies)
+- Domain: plain Java objects, zero Spring annotations
+
+## Coding Standards
+- SLF4J only. NEVER System.out.println
+- Constructor injection only. NEVER @Autowired on fields
+- NEVER return null for collections
+- NEVER Optional.get() — use orElseThrow()
+- All public methods: Javadoc
+- Decimal: ALWAYS Decimal/BigDecimal with String constructor — new BigDecimal("7.5")
+
+## Domain Glossary
+- Applicant: customer applying for a loan (applicantId = UUID string)
+- Credit Score: 300-900 CIBIL scale. Below 600 = high risk.
+- Employment Status: SALARIED | SELF_EMPLOYED | UNEMPLOYED | RETIRED
+
+## Where to Find More
+- src/main/java/com.bank/loans/service/AGENTS.md — service-specific stack, build commands, conventions, overrides 

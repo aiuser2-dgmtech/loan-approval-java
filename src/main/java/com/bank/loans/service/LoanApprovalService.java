@@ -1,8 +1,10 @@
 package com.bank.loans.service;
 
 import com.bank.loans.domain.LoanApplication;
+import com.bank.loans.dto.EligibilitySummaryResponse;
 import com.bank.loans.dto.LoanApplicationRequest;
 import com.bank.loans.dto.LoanDecisionResponse;
+import com.bank.loans.exception.ApplicantNotFoundException;
 import com.bank.loans.repository.LoanApplicationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,25 @@ public class LoanApprovalService {
         log.info("Loan decision for applicant {}: {}", request.getApplicantId(), decision.getStatus());
 
         return decision;
+    }
+
+    public EligibilitySummaryResponse evaluateEligibility(String applicantId, Integer creditScore) {
+        log.info("Evaluating eligibility for applicant: {}, creditScore: {}", applicantId, creditScore);
+
+        
+        final int minimumCreditScore = 600;
+        boolean eligible = creditScore != null && creditScore >= minimumCreditScore;
+        
+        String message = eligible
+                ? "Applicant meets minimum credit score requirement"
+                : "Credit score below minimum threshold of " + minimumCreditScore;
+        
+        return new EligibilitySummaryResponse(
+                eligible,
+                minimumCreditScore,
+                creditScore != null ? creditScore : 0,
+                message
+        );
     }
 
     public List<LoanApplication> getApplicationsByApplicant(String applicantId) {

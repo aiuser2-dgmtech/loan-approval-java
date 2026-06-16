@@ -1,5 +1,6 @@
 package com.bank.loans.controller;
 
+import com.bank.loans.dto.EligibilitySummaryResponse;
 import com.bank.loans.dto.LoanApplicationRequest;
 import com.bank.loans.dto.LoanDecisionResponse;
 import com.bank.loans.service.LoanApprovalService;
@@ -23,6 +24,17 @@ public class LoanController {
     public ResponseEntity<LoanDecisionResponse> applyForLoan(
             @Valid @RequestBody LoanApplicationRequest request) {
         LoanDecisionResponse response = loanApprovalService.processApplication(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{applicantId}/eligibility-summary")
+    public ResponseEntity<EligibilitySummaryResponse> getEligibilitySummary(
+            @PathVariable String applicantId,
+            @RequestParam Integer creditScore) {
+        if (creditScore == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        EligibilitySummaryResponse response = loanApprovalService.evaluateEligibility(applicantId, creditScore);
         return ResponseEntity.ok(response);
     }
 }

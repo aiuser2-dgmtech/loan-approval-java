@@ -26,6 +26,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
+    @ExceptionHandler(ApplicantNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleApplicantNotFound(ApplicantNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
     public static class ValidationError {
         private final String field;
         private final String error;
@@ -41,6 +47,18 @@ public class GlobalExceptionHandler {
 
         public String getError() {
             return error;
+        }
+    }
+
+    public static class ErrorResponse {
+        private final String message;
+
+        public ErrorResponse(String message) {
+            this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
         }
     }
 }
