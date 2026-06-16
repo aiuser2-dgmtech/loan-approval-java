@@ -1,0 +1,102 @@
+name: CI with Auto Fix
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+
+      - name: Build and test
+        run: mvn clean verify
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: target/surefire-reports/
+
+  copilot-auto-fix:
+    needs: [build-and-test]
+    if: failure()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download test reports
+        uses: actions/download-artifact@v4
+        with:
+          name: test-reports
+          path: test-results
+
+      - name: Collect failure context
+        shell: bash
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          REPOSITORY: ${{ github.repository }}
+          BRANCH_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          {
+            echo "CI FAILURE CONTEXT"
+            echo
+            echo "Timestamp (UTC): $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+            echo "Repository: ${REPOSITORY}"
+            echo "Branch: ${BRANCH_NAME}"
+            echo "Run URL: ${RUN_URL}"
+            echo
+            echo "Changed files:"
+            git diff --name-only origin/main...HEAD || true
+            echo
+            echo "Test results:"
+            shopt -s nullglob
+            xml_files=(./test-results/*.xml)
+            if [ ${#xml_files[@]} -eq 0 ]; then
+              echo "No test results available"
+            else
+              for file in "${xml_files[@]}"; do
+                echo "--- ${file} ---"
+                cat "${file}"
+                echo
+              done
+            fi
+            echo "Maven output:"
+            if [ -f mvn-output.log ]; then
+              tail -n 50 mvn-output.log
+            else
+              echo "No mvn-output.log available"
+            fi
+          } > failure-context.txt
+
+      - name: Run Copilot auto-fix
+        uses: github/copilot-auto-fix@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          failure-context-file: ./failure-context.txt
+          branch-prefix: copilot/auto-fix
+          draft-pr: true
+          pr-title: "fix: automated fix attempt for failed CI run"
