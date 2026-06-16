@@ -33,13 +33,12 @@ jobs:
           path: target/surefire-reports/
 
   copilot-auto-fix:
-    needs: [build-and-test]
+    needs: [ build-and-test ]
     if: failure()
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
-      issues: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -54,20 +53,15 @@ jobs:
 
       - name: Collect failure context
         shell: bash
-        env:
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          REPOSITORY: ${{ github.repository }}
-          BRANCH_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-
           {
             echo "CI FAILURE CONTEXT"
             echo
             echo "Timestamp (UTC): $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-            echo "Repository: ${REPOSITORY}"
-            echo "Branch: ${BRANCH_NAME}"
-            echo "Run URL: ${RUN_URL}"
+            echo "Repository: ${{ github.repository }}"
+            echo "Branch: ${{ github.ref_name }}"
+            echo "Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             echo
             echo "Changed files:"
             git diff --name-only origin/main...HEAD || true
@@ -84,19 +78,33 @@ jobs:
                 echo
               done
             fi
-            echo "Maven output:"
-            if [ -f mvn-output.log ]; then
-              tail -n 50 mvn-output.log
-            else
-              echo "No mvn-output.log available"
-            fi
           } > failure-context.txt
 
-      - name: Run Copilot auto-fix
-        uses: github/copilot-auto-fix@v1
+      - name: Export failure context
+        id: context
+        run: |
+          {
+            echo "context<<EOF"
+            cat failure-context.txt
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+      - name: Create auto-fix PR
+        uses: peter-evans/create-pull-request@v5
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          failure-context-file: ./failure-context.txt
-          branch-prefix: copilot/auto-fix
-          draft-pr: true
-          pr-title: "fix: automated fix attempt for failed CI run"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "fix: automated fix attempt for failed CI run"
+          title: "fix: automated fix attempt for failed CI run"
+          body: |
+            ## Automated CI Failure Fix
+            
+            This PR was automatically created because the CI build failed.
+            
+            ### Failure Context
+            ```
+             ${{ steps.context.outputs.context }}
+            ```                        
+            Please review the changes and test results above.          
+            branch: copilot/auto-fix-${{ github.run_id }}          
+            delete-branch: true          
+            draft: true
