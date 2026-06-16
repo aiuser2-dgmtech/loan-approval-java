@@ -51,6 +51,11 @@ jobs:
           name: test-reports
           path: test-results
 
+      - name: Re-run full test suite for failure logs
+        shell: bash
+        run: |
+          mvn clean verify > mvn-output.log 2>&1 || true
+
       - name: Collect failure context
         shell: bash
         run: |
@@ -77,6 +82,13 @@ jobs:
                 cat "${file}"
                 echo
               done
+            fi
+            echo
+            echo "Maven output (last 50 lines):"
+            if [ -f mvn-output.log ]; then
+              tail -n 50 mvn-output.log
+            else
+              echo "No mvn-output.log available"
             fi
           } > failure-context.txt
 
