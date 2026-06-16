@@ -13,7 +13,7 @@ public class SalariedLoanStrategy implements LoanDecisionStrategy {
     @Override
     public LoanDecisionResponse evaluate(LoanApplicationRequest request) {
         Integer creditScore = request.getCreditScore();
-
+        //Test
         if (creditScore == null || creditScore < 300) {
             return new LoanDecisionResponse(null, "REJECTED", null, "Credit score too low or not provided");
         } else if (creditScore >= 800) {
