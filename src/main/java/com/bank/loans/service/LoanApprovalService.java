@@ -38,6 +38,7 @@ public class LoanApprovalService {
     public EligibilitySummaryResponse evaluateEligibility(String applicantId, Integer creditScore) {
         log.info("Evaluating eligibility for applicant: {}, creditScore: {}", applicantId, creditScore);
 
+
         
         final int minimumCreditScore = 600;
         boolean eligible = creditScore != null && creditScore >= minimumCreditScore;
