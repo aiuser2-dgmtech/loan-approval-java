@@ -16,7 +16,7 @@ public class SalariedLoanStrategy implements LoanDecisionStrategy {
 
         if (creditScore == null || creditScore < 300) {
             return new LoanDecisionResponse(null, "REJECTED", null, "Credit score too low or not provided");
-        } else if (creditScore >= 750) {
+        } else if (creditScore >= 800) {
             return new LoanDecisionResponse(null, "APPROVED", new BigDecimal("7.5"), "Excellent credit profile");
         } else if (creditScore >= 600) {
             return new LoanDecisionResponse(null, "APPROVED", new BigDecimal("12.0"), "Standard credit profile");
