@@ -102,9 +102,9 @@ jobs:
             
             ### Failure Context
             ```
-             ${{ steps.context.outputs.context }}
-            ```                        
-            Please review the changes and test results above.          
-            branch: copilot/auto-fix-${{ github.run_id }}          
-            delete-branch: true          
-            draft: true
+            ${{ steps.context.outputs.context }}
+            ```
+            Please review the changes and test results above.
+          branch: copilot/auto-fix-${{ github.run_id }}
+          delete-branch: true
+          draft: true
