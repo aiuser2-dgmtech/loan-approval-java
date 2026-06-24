@@ -1,0 +1,24 @@
+-------------------------------------------------------------------------------
+Test set: com.bank.loans.service.LoanDecisionStrategyTest
+-------------------------------------------------------------------------------
+Tests run: 17, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.094 s <<< FAILURE! -- in com.bank.loans.service.LoanDecisionStrategyTest
+com.bank.loans.service.LoanDecisionStrategyTest.testSalariedStrategy_ApprovalAt750PlusScore -- Time elapsed: 0.020 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <7.5> but was: <12.0>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:179)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1188)
+	at com.bank.loans.service.LoanDecisionStrategyTest.testSalariedStrategy_ApprovalAt750PlusScore(LoanDecisionStrategyTest.java:35)
+
+com.bank.loans.service.LoanDecisionStrategyTest.testSalariedStrategy_ApprovalAtBoundary750 -- Time elapsed: 0.003 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <7.5> but was: <12.0>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:179)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1188)
+	at com.bank.loans.service.LoanDecisionStrategyTest.testSalariedStrategy_ApprovalAtBoundary750(LoanDecisionStrategyTest.java:92)
+
